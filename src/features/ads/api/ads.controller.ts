@@ -2,21 +2,22 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   NotFoundException,
   Param,
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AdEntity } from '../entities/ads.entity';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateAdDto } from '../dto/create-ad.dto';
 import { QueryAdsRepository } from './query.ads.repository';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateNewAdCommand } from '../application/use-cases/create-new-ad.usecase';
 import { QueryAdsDTO } from '../dto/query-ads-dto';
-import { AdsWithPaginationType } from '../types/ads.types';
+import { AdsViewModel, AdsWithPaginationType } from '../types/ads.types';
 
-@ApiTags('ads')
+@ApiTags('Ads')
 @Controller('ads')
 export class AdController {
   constructor(
@@ -25,6 +26,8 @@ export class AdController {
   ) {}
 
   @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all ads with pagination' })
   @ApiResponse({
     status: 200,
     description: 'Get list of ads',
@@ -37,7 +40,7 @@ export class AdController {
   @ApiParam({ name: 'id', type: 'string' })
   @ApiResponse({ status: 200, description: 'Get an ad by ID' })
   @ApiResponse({ status: 404, description: 'Ad not found' })
-  async getAdById(@Param('id') id: string): Promise<AdEntity> {
+  async getAdById(@Param('id') id: string): Promise<AdsViewModel> {
     const ad = await this.queryAdsRepo.getAdById(id);
 
     if (!ad) throw new NotFoundException('Ad not found');

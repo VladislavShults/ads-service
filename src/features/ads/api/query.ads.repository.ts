@@ -3,7 +3,8 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { QueryAdsDTO } from '../dto/query-ads-dto';
-import { AdsWithPaginationType } from '../types/ads.types';
+import { AdsViewModel, AdsWithPaginationType } from '../types/ads.types';
+import { mapDbAdsToVievModel } from '../helpers/mapDbAdsToVievModel';
 
 @Injectable()
 export class QueryAdsRepository {
@@ -11,9 +12,10 @@ export class QueryAdsRepository {
     @InjectRepository(AdEntity) private adsRepo: Repository<AdEntity>,
   ) {}
 
-  async getAdById(id: string) {
+  async getAdById(id: string): Promise<AdsViewModel> {
     try {
-      return this.adsRepo.findOne({ where: { id } });
+      const ad = await this.adsRepo.findOne({ where: { id } });
+      return mapDbAdsToVievModel(ad);
     } catch (err) {
       return null;
     }
@@ -24,14 +26,13 @@ export class QueryAdsRepository {
 
     const adsDb = await this.adsRepo
       .createQueryBuilder('a')
-      .orderBy('a."' + sortBy + '"', sortDirection)
+      .orderBy(`a.${sortBy}`, sortDirection)
       .limit(pageSize)
       .offset((pageNumber - 1) * pageSize)
       .getManyAndCount();
 
     const totalCount = adsDb[1];
-
-    const items = adsDb[0];
+    const items = adsDb[0].map((a) => mapDbAdsToVievModel(a));
 
     return {
       pagesCount: Math.ceil(totalCount / pageSize),

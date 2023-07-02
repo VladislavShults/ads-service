@@ -9,9 +9,7 @@ export class CreateNewAdCommand {
 }
 
 @CommandHandler(CreateNewAdCommand)
-export class RegistrationUserUseCase
-  implements ICommandHandler<CreateNewAdCommand>
-{
+export class CreateNewAdUseCase implements ICommandHandler<CreateNewAdCommand> {
   constructor(private adsRepo: AdsRepository) {}
   async execute(command: CreateNewAdCommand): Promise<{ adId: string }> {
     const adId = randomUUID();

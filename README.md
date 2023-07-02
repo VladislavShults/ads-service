@@ -29,20 +29,20 @@
 ## Installation
 
 ```bash
-$ npm install
+$ yarn
 ```
 
 ## Running the app
 
 ```bash
 # development
-$ npm run start
+$ nest start --watch
 
 # watch mode
-$ npm run start:dev
+$ nest start --watch
 
 # production mode
-$ npm run start:prod
+$ nest start --watch
 ```
 
 ## Test

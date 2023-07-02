@@ -4,6 +4,13 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdEntity } from './features/ads/entities/ads.entity';
 import { settings } from '../settings';
+import { AdController } from './features/ads/api/ads.controller';
+import { CqrsModule } from '@nestjs/cqrs';
+import { QueryAdsRepository } from './features/ads/api/query.ads.repository';
+import { AdsRepository } from './features/ads/infrastructure/ads.repository';
+import { CreateNewAdUseCase } from './features/ads/application/use-cases/create-new-ad.usecase';
+import { AdsModule } from './features/ads/module/ads.module';
+import { AdsHttpModule } from './features/ads/module/ads-http.module';
 
 @Module({
   imports: [
@@ -16,10 +23,17 @@ import { settings } from '../settings';
       database: settings.database,
       entities: [AdEntity],
       synchronize: true,
-      autoLoadEntities: true,
     }),
+    CqrsModule,
+    AdsModule,
+    AdsHttpModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, AdController],
+  providers: [
+    AppService,
+    QueryAdsRepository,
+    AdsRepository,
+    CreateNewAdUseCase,
+  ],
 })
 export class AppModule {}
