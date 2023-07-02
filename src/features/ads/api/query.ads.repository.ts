@@ -4,7 +4,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { QueryAdsDTO } from '../dto/query-ads-dto';
 import { AdsViewModel, AdsWithPaginationType } from '../types/ads.types';
-import { mapDbAdsToVievModel } from '../helpers/mapDbAdsToVievModel';
+import {
+  mapDbAdsToVievModel,
+  mapDbOneAdsToVievModel,
+} from '../helpers/mapDbAdsToVievModel';
 
 @Injectable()
 export class QueryAdsRepository {
@@ -12,10 +15,25 @@ export class QueryAdsRepository {
     @InjectRepository(AdEntity) private adsRepo: Repository<AdEntity>,
   ) {}
 
-  async getAdById(id: string): Promise<AdsViewModel> {
+  async getAdById(id: string, fields: string[]): Promise<AdsViewModel> {
     try {
-      const ad = await this.adsRepo.findOne({ where: { id } });
-      return mapDbAdsToVievModel(ad);
+      const select = ['ad.title', 'ad.mainPhoto', 'ad.price'];
+
+      if (fields && fields.includes('description')) {
+        select.push('ad.description');
+      }
+      if (fields && fields.includes('photos')) {
+        select.push('ad.photos');
+      }
+
+      const queryBuilder = this.adsRepo
+        .createQueryBuilder('ad')
+        .select(select)
+        .where('ad.id = :id', { id });
+
+      const ad = await queryBuilder.getOne();
+
+      return mapDbOneAdsToVievModel(ad);
     } catch (err) {
       return null;
     }

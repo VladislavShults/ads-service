@@ -40,8 +40,11 @@ export class AdController {
   @ApiParam({ name: 'id', type: 'string' })
   @ApiResponse({ status: 200, description: 'Get an ad by ID' })
   @ApiResponse({ status: 404, description: 'Ad not found' })
-  async getAdById(@Param('id') id: string): Promise<AdsViewModel> {
-    const ad = await this.queryAdsRepo.getAdById(id);
+  async getAdById(
+    @Param('id') id: string,
+    @Query('fields') fields?: string[],
+  ): Promise<AdsViewModel> {
+    const ad = await this.queryAdsRepo.getAdById(id, fields);
 
     if (!ad) throw new NotFoundException('Ad not found');
 
